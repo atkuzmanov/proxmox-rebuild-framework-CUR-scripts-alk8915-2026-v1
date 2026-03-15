@@ -1,0 +1,11 @@
+# Snapshot data (optional: remove to commit snapshots)
+state/snapshots/
+
+# Logs
+logs/
+
+# Editor / OS
+.DS_Store
+*.swp
+*.swo
+*~
