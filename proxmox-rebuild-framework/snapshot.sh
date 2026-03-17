@@ -12,6 +12,7 @@ source "$ROOT_DIR/lib/logging.sh"
 PROFILE="${PROFILE:-default}"
 DRY_RUN=0
 SNAPSHOT_NAME=""
+OUTPUT_DIR=""
 
 usage() {
   cat <<USAGE
@@ -25,6 +26,7 @@ Usage: $0 [options]
 Options:
   --profile <name>     Profile name (default: default)
   --name <snapshot>    Snapshot directory name (default: timestamp)
+  --output-dir <path>  Base directory to write snapshots (default: state/snapshots)
   --dry-run            Print actions without executing
   -h, --help           Show this help
 USAGE
@@ -48,6 +50,11 @@ while [[ $# -gt 0 ]]; do
       SNAPSHOT_NAME="$2"
       shift 2
       ;;
+    --output-dir)
+      require_arg "$1" "${2:-}"
+      OUTPUT_DIR="$2"
+      shift 2
+      ;;
     --dry-run)
       DRY_RUN=1
       shift
@@ -69,9 +76,10 @@ export PROFILE
 PROFILE_FILE="$ROOT_DIR/profiles/${PROFILE}.env"
 [[ -f "$PROFILE_FILE" ]] && load_profile "$PROFILE_FILE"
 
-ensure_dir "$ROOT_DIR/state/snapshots"
+SNAPSHOT_BASE_DIR="${OUTPUT_DIR:-$ROOT_DIR/state/snapshots}"
+ensure_dir "$SNAPSHOT_BASE_DIR"
 SNAPSHOT_TIMESTAMP="${SNAPSHOT_NAME:-$(date +%Y-%m-%d-%H%M%S)}"
-SNAPSHOT_DIR="$ROOT_DIR/state/snapshots/$SNAPSHOT_TIMESTAMP"
+SNAPSHOT_DIR="$SNAPSHOT_BASE_DIR/$SNAPSHOT_TIMESTAMP"
 export SNAPSHOT_DIR
 export SNAPSHOT_TIMESTAMP
 

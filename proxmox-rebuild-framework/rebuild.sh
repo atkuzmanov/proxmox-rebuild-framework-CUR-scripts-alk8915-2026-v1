@@ -12,6 +12,7 @@ source "$ROOT_DIR/lib/logging.sh"
 PROFILE="${PROFILE:-default}"
 DRY_RUN=0
 FROM_SNAPSHOT=""
+SNAPSHOT_ROOT=""
 ONLY_STEP=""
 declare -a SKIP_STEPS=()
 
@@ -25,6 +26,7 @@ Usage: $0 --from-snapshot <name> [options]
 
 Options:
   --from-snapshot <name>  Snapshot name (directory under state/snapshots/)
+  --snapshot-root <path>  Base directory where snapshots live (default: state/snapshots)
   --profile <name>       Profile name (default: default)
   --only-step <script>   Run only one restore script
   --skip-step <script>   Skip a script (repeatable)
@@ -44,6 +46,11 @@ while [[ $# -gt 0 ]]; do
     --from-snapshot)
       require_arg "$1" "${2:-}"
       FROM_SNAPSHOT="$2"
+      shift 2
+      ;;
+    --snapshot-root)
+      require_arg "$1" "${2:-}"
+      SNAPSHOT_ROOT="$2"
       shift 2
       ;;
     --profile)
@@ -77,7 +84,8 @@ done
 
 [[ -n "$FROM_SNAPSHOT" ]] || die "You must pass --from-snapshot <name>"
 
-RESTORE_SNAPSHOT_DIR="$ROOT_DIR/state/snapshots/$FROM_SNAPSHOT"
+SNAPSHOT_BASE_DIR="${SNAPSHOT_ROOT:-$ROOT_DIR/state/snapshots}"
+RESTORE_SNAPSHOT_DIR="$SNAPSHOT_BASE_DIR/$FROM_SNAPSHOT"
 export RESTORE_SNAPSHOT_DIR
 
 [[ -d "$RESTORE_SNAPSHOT_DIR" ]] || die "Snapshot not found: $RESTORE_SNAPSHOT_DIR"

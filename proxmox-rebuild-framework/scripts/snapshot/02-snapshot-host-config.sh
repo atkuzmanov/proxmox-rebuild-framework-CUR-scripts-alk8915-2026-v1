@@ -67,6 +67,16 @@ if [[ -d /etc/netplan ]]; then
   log_info "Backed up /etc/netplan"
 fi
 
+# systemd (units, drop-ins, networkd configs, etc.)
+if [[ -d /etc/systemd ]]; then
+  if [[ "$(id -u)" -eq 0 ]]; then
+    run_cmd cp -a /etc/systemd "$HOST_BACKUP/systemd"
+  else
+    run_cmd_sudo cp -a /etc/systemd "$HOST_BACKUP/systemd"
+  fi
+  log_info "Backed up /etc/systemd"
+fi
+
 # Optional: initramfs modules (some GPU passthrough setups use /etc/initramfs-tools/modules)
 if [[ -f /etc/initramfs-tools/modules ]]; then
   copy_sudo /etc/initramfs-tools/modules "$HOST_BACKUP/initramfs-modules"
@@ -74,3 +84,26 @@ if [[ -f /etc/initramfs-tools/modules ]]; then
 fi
 
 log_info "Host config snapshot complete"
+
+# Optional: full /etc snapshot (can contain secrets; disabled by default)
+if [[ "${SNAPSHOT_ETC_ALL:-0}" -eq 1 ]]; then
+  log_section "Snapshot full /etc (opt-in)"
+  ETC_TAR="$HOST_BACKUP/etc-full.tar.gz"
+  # Exclude volatile/runtime mounts and Proxmox cluster fs view (we already snapshot PVE via config.db)
+  # Note: /etc/pve is a FUSE-like view; including it inside a full /etc tar is usually unnecessary/noisy.
+  TAR_EXCLUDES=(
+    --exclude='./pve'
+    --exclude='./mtab'
+    --exclude='./resolv.conf'
+    --exclude='./hosts'
+    --exclude='./hostname'
+    --exclude='./machine-id'
+  )
+
+  if [[ "$(id -u)" -eq 0 ]]; then
+    run_cmd tar -C /etc -czf "$ETC_TAR" "${TAR_EXCLUDES[@]}" . 2>/dev/null || true
+  else
+    run_cmd_sudo tar -C /etc -czf "$ETC_TAR" "${TAR_EXCLUDES[@]}" . 2>/dev/null || true
+  fi
+  log_info "Backed up full /etc to host-config/etc-full.tar.gz (SNAPSHOT_ETC_ALL=1)"
+fi

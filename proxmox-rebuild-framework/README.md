@@ -19,6 +19,8 @@ chmod +x snapshot.sh rebuild.sh
 sudo ./snapshot.sh
 # Or with a custom name:
 ./snapshot.sh --name my-before-upgrade
+# Or write snapshots somewhere else (e.g. a mounted disk/NFS share):
+./snapshot.sh --output-dir /mnt/backups/pve-snapshots --name my-before-upgrade
 ```
 
 Snapshot is written to `state/snapshots/<timestamp-or-name>/`.
@@ -30,6 +32,8 @@ Snapshot is written to `state/snapshots/<timestamp-or-name>/`.
 ./rebuild.sh --from-snapshot 2026-03-15-120000
 # Or the name you used:
 ./rebuild.sh --from-snapshot my-before-upgrade
+# Or restore from a custom snapshots location:
+./rebuild.sh --snapshot-root /mnt/backups/pve-snapshots --from-snapshot my-before-upgrade
 ```
 
 Use `sudo ./rebuild.sh` if you need root for PVE cluster restore. Reboot after restore if you restored GRUB/kernel (e.g. GPU passthrough) config.
@@ -68,7 +72,8 @@ proxmox-rebuild-framework/
 | Category | Contents |
 |----------|----------|
 | **PVE config** | `/var/lib/pve-cluster/config.db`, `/etc/pve` (VM/CT configs, storage.cfg, firewall, ACLs, etc.) |
-| **Host (GPU passthrough etc.)** | `/etc/default/grub`, `/etc/modules`, `/etc/modprobe.d/`, `/etc/network/interfaces` or `/etc/netplan/`, optional initramfs modules |
+| **Host (GPU passthrough etc.)** | `/etc/default/grub`, `/etc/modules`, `/etc/modprobe.d/`, `/etc/network/interfaces` or `/etc/netplan/`, `/etc/systemd/`, optional initramfs modules |
+| **Optional full /etc** | `host-config/etc-full.tar.gz` (enabled with `SNAPSHOT_ETC_ALL=1`; restore with `RESTORE_ETC_ALL=1`) |
 | **Manifest** | Timestamp, hostname, PVE version, list of VM/CT IDs |
 
 ## What you do manually after restore
@@ -86,22 +91,26 @@ See the printed manual checklist at the end of `rebuild.sh` for the full list.
 ### Snapshot
 
 ```bash
-./snapshot.sh [--profile <name>] [--name <snapshot-dir-name>] [--dry-run]
+./snapshot.sh [--profile <name>] [--name <snapshot-dir-name>] [--output-dir <path>] [--dry-run]
 ```
 
 - `--name` – Use a fixed directory name instead of a timestamp (e.g. `my-before-upgrade`).
 - `--profile` – Load `profiles/<name>.env` if present (for future use).
+- `--output-dir` – Base directory for snapshots (default: `state/snapshots/`).
 - `--dry-run` – Log what would be done without writing.
+- `SNAPSHOT_ETC_ALL=1` – Also archive (almost) all of `/etc` into `host-config/etc-full.tar.gz` (contains secrets; use with care).
 
 ### Rebuild (restore)
 
 ```bash
-./rebuild.sh --from-snapshot <name> [--profile <name>] [--only-step <script>] [--skip-step <script>] [--dry-run]
+./rebuild.sh --from-snapshot <name> [--snapshot-root <path>] [--profile <name>] [--only-step <script>] [--skip-step <script>] [--dry-run]
 ```
 
 - `--from-snapshot` – Snapshot directory name under `state/snapshots/` (required).
+- `--snapshot-root` – Base directory where snapshots live (default: `state/snapshots/`).
 - `--only-step` / `--skip-step` – Run only one restore script or skip specific ones.
 - Use `sudo ./rebuild.sh` when restoring PVE cluster config so `config.db` and `pve-cluster` can be updated.
+- `RESTORE_ETC_ALL=1` – Extract `host-config/etc-full.tar.gz` over `/etc` (dangerous on mismatched hardware/installs; use with care).
 
 ## Requirements
 
