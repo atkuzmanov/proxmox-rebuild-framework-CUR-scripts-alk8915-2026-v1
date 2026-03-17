@@ -16,6 +16,14 @@ SNAPSHOT_ROOT=""
 ONLY_STEP=""
 declare -a SKIP_STEPS=()
 
+normalize_path_arg() {
+  # Paste-proofing: if a path is pasted with '\ ' sequences inside quotes,
+  # bash will preserve the backslash. Convert '\ ' -> ' '.
+  local s="${1:-}"
+  s="${s//\\ / }"
+  printf '%s' "$s"
+}
+
 usage() {
   cat <<USAGE
 Usage: $0 --from-snapshot <name> [options]
@@ -25,13 +33,13 @@ Usage: $0 --from-snapshot <name> [options]
   must be reattached or restored from backup separately.
 
 Options:
-  --from-snapshot <name>  Snapshot name (directory under state/snapshots/)
-  --snapshot-root <path>  Base directory where snapshots live (default: state/snapshots)
-  --profile <name>       Profile name (default: default)
-  --only-step <script>   Run only one restore script
-  --skip-step <script>   Skip a script (repeatable)
-  --dry-run              Print actions without executing
-  -h, --help             Show this help
+  --from-snapshot <name>   Snapshot name (directory under state/snapshots/). Also supports --from-snapshot=<name>
+  --snapshot-root <path>   Base directory where snapshots live (default: state/snapshots). Also supports --snapshot-root=<path>
+  --profile <name>         Profile name (default: default). Also supports --profile=<name>
+  --only-step <script>     Run only one restore script. Also supports --only-step=<script>
+  --skip-step <script>     Skip a script (repeatable). Also supports --skip-step=<script>
+  --dry-run                Print actions without executing
+  -h, --help               Show this help
 USAGE
 }
 
@@ -48,25 +56,50 @@ while [[ $# -gt 0 ]]; do
       FROM_SNAPSHOT="$2"
       shift 2
       ;;
+    --from-snapshot=*)
+      FROM_SNAPSHOT="${1#*=}"
+      require_arg "--from-snapshot" "$FROM_SNAPSHOT"
+      shift
+      ;;
     --snapshot-root)
       require_arg "$1" "${2:-}"
-      SNAPSHOT_ROOT="$2"
+      SNAPSHOT_ROOT="$(normalize_path_arg "$2")"
       shift 2
+      ;;
+    --snapshot-root=*)
+      SNAPSHOT_ROOT="$(normalize_path_arg "${1#*=}")"
+      require_arg "--snapshot-root" "$SNAPSHOT_ROOT"
+      shift
       ;;
     --profile)
       require_arg "$1" "${2:-}"
       PROFILE="$2"
       shift 2
       ;;
+    --profile=*)
+      PROFILE="${1#*=}"
+      require_arg "--profile" "$PROFILE"
+      shift
+      ;;
     --only-step)
       require_arg "$1" "${2:-}"
       ONLY_STEP="$2"
       shift 2
       ;;
+    --only-step=*)
+      ONLY_STEP="${1#*=}"
+      require_arg "--only-step" "$ONLY_STEP"
+      shift
+      ;;
     --skip-step)
       require_arg "$1" "${2:-}"
       SKIP_STEPS+=("$2")
       shift 2
+      ;;
+    --skip-step=*)
+      SKIP_STEPS+=("${1#*=}")
+      require_arg "--skip-step" "${SKIP_STEPS[-1]}"
+      shift
       ;;
     --dry-run)
       DRY_RUN=1

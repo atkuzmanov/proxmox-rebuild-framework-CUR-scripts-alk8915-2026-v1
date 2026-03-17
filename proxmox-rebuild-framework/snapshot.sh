@@ -14,6 +14,14 @@ DRY_RUN=0
 SNAPSHOT_NAME=""
 OUTPUT_DIR=""
 
+normalize_path_arg() {
+  # Paste-proofing: if a path is pasted with '\ ' sequences inside quotes,
+  # bash will preserve the backslash. Convert '\ ' -> ' '.
+  local s="${1:-}"
+  s="${s//\\ / }"
+  printf '%s' "$s"
+}
+
 usage() {
   cat <<USAGE
 Usage: $0 [options]
@@ -24,9 +32,9 @@ Usage: $0 [options]
   storage data.
 
 Options:
-  --profile <name>     Profile name (default: default)
-  --name <snapshot>    Snapshot directory name (default: timestamp)
-  --output-dir <path>  Base directory to write snapshots (default: state/snapshots)
+  --profile <name>        Profile name (default: default). Also supports --profile=<name>
+  --name <snapshot>       Snapshot directory name (default: timestamp). Also supports --name=<snapshot>
+  --output-dir <path>     Base directory to write snapshots (default: state/snapshots). Also supports --output-dir=<path>
   --dry-run            Print actions without executing
   -h, --help           Show this help
 USAGE
@@ -45,15 +53,30 @@ while [[ $# -gt 0 ]]; do
       PROFILE="$2"
       shift 2
       ;;
+    --profile=*)
+      PROFILE="${1#*=}"
+      require_arg "--profile" "$PROFILE"
+      shift
+      ;;
     --name)
       require_arg "$1" "${2:-}"
       SNAPSHOT_NAME="$2"
       shift 2
       ;;
+    --name=*)
+      SNAPSHOT_NAME="${1#*=}"
+      require_arg "--name" "$SNAPSHOT_NAME"
+      shift
+      ;;
     --output-dir)
       require_arg "$1" "${2:-}"
-      OUTPUT_DIR="$2"
+      OUTPUT_DIR="$(normalize_path_arg "$2")"
       shift 2
+      ;;
+    --output-dir=*)
+      OUTPUT_DIR="$(normalize_path_arg "${1#*=}")"
+      require_arg "--output-dir" "$OUTPUT_DIR"
+      shift
       ;;
     --dry-run)
       DRY_RUN=1

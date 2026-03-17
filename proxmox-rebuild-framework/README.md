@@ -21,6 +21,12 @@ sudo ./snapshot.sh
 ./snapshot.sh --name my-before-upgrade
 # Or write snapshots somewhere else (e.g. a mounted disk/NFS share):
 ./snapshot.sh --output-dir /mnt/backups/pve-snapshots --name my-before-upgrade
+# Paths with spaces are supported; just quote them:
+./snapshot.sh --output-dir "/mnt/backups/Proxmox Snapshots" --name "before upgrade"
+# If you accidentally paste a backslash before spaces, the scripts normalize '\ ' to ' ':
+./snapshot.sh --output-dir "/mnt/backups/Proxmox\ Snapshots" --name "before upgrade"
+# You can also use --flag=value style:
+./snapshot.sh --output-dir="/mnt/backups/pve-snapshots" --name=my-before-upgrade
 ```
 
 Snapshot is written to `state/snapshots/<timestamp-or-name>/`.
@@ -34,6 +40,12 @@ Snapshot is written to `state/snapshots/<timestamp-or-name>/`.
 ./rebuild.sh --from-snapshot my-before-upgrade
 # Or restore from a custom snapshots location:
 ./rebuild.sh --snapshot-root /mnt/backups/pve-snapshots --from-snapshot my-before-upgrade
+# Paths with spaces are supported; just quote them:
+./rebuild.sh --snapshot-root "/mnt/backups/Proxmox Snapshots" --from-snapshot "before upgrade"
+# If you accidentally paste a backslash before spaces, the scripts normalize '\ ' to ' ':
+./rebuild.sh --snapshot-root "/mnt/backups/Proxmox\ Snapshots" --from-snapshot "before upgrade"
+# You can also use --flag=value style:
+./rebuild.sh --snapshot-root="/mnt/backups/pve-snapshots" --from-snapshot=my-before-upgrade
 ```
 
 Use `sudo ./rebuild.sh` if you need root for PVE cluster restore. Reboot after restore if you restored GRUB/kernel (e.g. GPU passthrough) config.
