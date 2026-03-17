@@ -77,6 +77,16 @@ if [[ -d /etc/systemd ]]; then
   log_info "Backed up /etc/systemd"
 fi
 
+# ZFS configuration (import behavior, ZED notifications, etc.)
+if [[ -d /etc/zfs ]]; then
+  if [[ "$(id -u)" -eq 0 ]]; then
+    run_cmd cp -a /etc/zfs "$HOST_BACKUP/zfs"
+  else
+    run_cmd_sudo cp -a /etc/zfs "$HOST_BACKUP/zfs"
+  fi
+  log_info "Backed up /etc/zfs"
+fi
+
 # Optional: initramfs modules (some GPU passthrough setups use /etc/initramfs-tools/modules)
 if [[ -f /etc/initramfs-tools/modules ]]; then
   copy_sudo /etc/initramfs-tools/modules "$HOST_BACKUP/initramfs-modules"

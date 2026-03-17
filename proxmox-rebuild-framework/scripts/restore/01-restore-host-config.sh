@@ -50,6 +50,9 @@ cp_dir() {
 # systemd
 [[ -d "$SRC/systemd" ]] && cp_dir "$SRC/systemd" /etc/systemd && log_info "Restored /etc/systemd"
 
+# ZFS config
+[[ -d "$SRC/zfs" ]] && cp_dir "$SRC/zfs" /etc/zfs && log_info "Restored /etc/zfs"
+
 # Initramfs modules
 [[ -f "$SRC/initramfs-modules" ]] && cp_file "$SRC/initramfs-modules" /etc/initramfs-tools/modules && log_info "Restored /etc/initramfs-tools/modules"
 

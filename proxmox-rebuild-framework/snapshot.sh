@@ -119,6 +119,7 @@ SNAPSHOT_STEPS=(
   "01-snapshot-pve-config.sh"
   "02-snapshot-host-config.sh"
   "03-snapshot-manifest.sh"
+  "04-snapshot-diagnostics.sh"
 )
 
 run_step() {
