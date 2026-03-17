@@ -53,6 +53,9 @@ cp_dir() {
 # ZFS config
 [[ -d "$SRC/zfs" ]] && cp_dir "$SRC/zfs" /etc/zfs && log_info "Restored /etc/zfs"
 
+# NUT (Network UPS Tools) config
+[[ -d "$SRC/nut" ]] && cp_dir "$SRC/nut" /etc/nut && log_info "Restored /etc/nut"
+
 # Initramfs modules
 [[ -f "$SRC/initramfs-modules" ]] && cp_file "$SRC/initramfs-modules" /etc/initramfs-tools/modules && log_info "Restored /etc/initramfs-tools/modules"
 

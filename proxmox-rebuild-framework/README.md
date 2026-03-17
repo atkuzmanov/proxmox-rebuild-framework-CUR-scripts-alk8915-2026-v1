@@ -84,7 +84,7 @@ proxmox-rebuild-framework/
 | Category | Contents |
 |----------|----------|
 | **PVE config** | `/var/lib/pve-cluster/config.db`, `/etc/pve` (VM/CT configs, storage.cfg, firewall, ACLs, etc.) |
-| **Host (GPU passthrough etc.)** | `/etc/default/grub`, `/etc/modules`, `/etc/modprobe.d/`, `/etc/network/interfaces` or `/etc/netplan/`, `/etc/systemd/`, `/etc/zfs/`, optional initramfs modules |
+| **Host (GPU passthrough etc.)** | `/etc/default/grub`, `/etc/modules`, `/etc/modprobe.d/`, `/etc/network/interfaces` or `/etc/netplan/`, `/etc/systemd/`, `/etc/zfs/`, `/etc/nut/`, optional initramfs modules |
 | **Diagnostics (informational)** | `diagnostics/*.txt` (ZFS status, ZFS properties, storage.cfg copy, pveversion -v, proxmox-boot-tool status, etc.) |
 | **Optional full /etc** | `host-config/etc-full.tar.gz` (enabled with `SNAPSHOT_ETC_ALL=1`; restore with `RESTORE_ETC_ALL=1`) |
 | **Manifest** | Timestamp, hostname, PVE version, list of VM/CT IDs |

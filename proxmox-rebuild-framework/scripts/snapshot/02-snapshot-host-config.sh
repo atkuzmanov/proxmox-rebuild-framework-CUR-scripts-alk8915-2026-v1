@@ -87,6 +87,16 @@ if [[ -d /etc/zfs ]]; then
   log_info "Backed up /etc/zfs"
 fi
 
+# NUT (Network UPS Tools) configuration
+if [[ -d /etc/nut ]]; then
+  if [[ "$(id -u)" -eq 0 ]]; then
+    run_cmd cp -a /etc/nut "$HOST_BACKUP/nut"
+  else
+    run_cmd_sudo cp -a /etc/nut "$HOST_BACKUP/nut"
+  fi
+  log_info "Backed up /etc/nut"
+fi
+
 # Optional: initramfs modules (some GPU passthrough setups use /etc/initramfs-tools/modules)
 if [[ -f /etc/initramfs-tools/modules ]]; then
   copy_sudo /etc/initramfs-tools/modules "$HOST_BACKUP/initramfs-modules"
