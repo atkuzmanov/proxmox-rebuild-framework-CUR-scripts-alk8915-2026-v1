@@ -120,6 +120,7 @@ SNAPSHOT_STEPS=(
   "02-snapshot-host-config.sh"
   "03-snapshot-manifest.sh"
   "04-snapshot-diagnostics.sh"
+  "05-snapshot-apt.sh"
 )
 
 run_step() {

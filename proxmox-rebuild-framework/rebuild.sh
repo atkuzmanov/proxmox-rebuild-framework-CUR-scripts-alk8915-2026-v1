@@ -141,6 +141,7 @@ RESTORE_STEPS=(
   "01-restore-host-config.sh"
   "02-restore-pve-config.sh"
   "03-validate.sh"
+   "04-restore-apt.sh"
   "98-manual-checklist.sh"
 )
 

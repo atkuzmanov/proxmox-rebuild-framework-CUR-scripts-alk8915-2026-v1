@@ -86,6 +86,7 @@ proxmox-rebuild-framework/
 | **PVE config** | `/var/lib/pve-cluster/config.db`, `/etc/pve` (VM/CT configs, storage.cfg, firewall, ACLs, etc.) |
 | **Host (GPU passthrough etc.)** | `/etc/default/grub`, `/etc/modules`, `/etc/modprobe.d/`, `/etc/network/interfaces` or `/etc/netplan/`, `/etc/systemd/`, `/etc/zfs/`, `/etc/nut/`, optional initramfs modules |
 | **Diagnostics (informational)** | `diagnostics/*.txt` (ZFS status, ZFS properties, storage.cfg copy, pveversion -v, proxmox-boot-tool status, etc.) |
+| **APT state** | `apt/dpkg-selections.txt`, `apt/apt-manual-packages.txt` (optional restore of filtered manual packages) |
 | **Optional full /etc** | `host-config/etc-full.tar.gz` (enabled with `SNAPSHOT_ETC_ALL=1`; restore with `RESTORE_ETC_ALL=1`) |
 | **Manifest** | Timestamp, hostname, PVE version, list of VM/CT IDs |
 
@@ -124,6 +125,7 @@ See the printed manual checklist at the end of `rebuild.sh` for the full list.
 - `--only-step` / `--skip-step` – Run only one restore script or skip specific ones.
 - Use `sudo ./rebuild.sh` when restoring PVE cluster config so `config.db` and `pve-cluster` can be updated.
 - `RESTORE_ETC_ALL=1` – Extract `host-config/etc-full.tar.gz` over `/etc` (dangerous on mismatched hardware/installs; use with care).
+- `RESTORE_APT_PACKAGES=true` – Install filtered APT packages from `apt/apt-manual-packages.txt` on restore (see `apt/apt-manual-packages-filtered.txt`).
 
 ## Requirements
 
